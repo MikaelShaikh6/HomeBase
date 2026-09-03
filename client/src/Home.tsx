@@ -1,5 +1,11 @@
-import React from 'react'
-import { NavLink } from "react-router"
+import WelcomeHeader from "./components/today/WelcomeHeader";
+import ProgressCard from "./components/today/ProgressCard";
+import StreakCard from "./components/today/StreakCard";
+import ChoreList from "./components/today/ChoreList";
+import ActivityFeed from "./components/today/ActivityFeed";
+import WeeklyOverview from "./components/today/WeeklyOverview";
+import UpcomingChores from "./components/today/UpcomingChores";
+import Header from "./components/today/Header";
 
 const Home = () => {
   const navItems = [
@@ -11,57 +17,27 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-ink-black-500 text-alabaster-grey-100">
-      <header className="sticky top-0 z-50 border-b border-dusk-blue-500/30 bg-ink-black-500/95 backdrop-blur">
-        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-6 lg:px-8">
-          {/* Logo */}
-          <NavLink
-            to="/"
-            className="flex items-center gap-3 text-lg font-semibold tracking-tight text-alabaster-grey-100"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-dusk-blue-500 text-alabaster-grey-100">
-              ✓
-            </div>
+      <Header navItems={navItems} />
 
-            <span>HomeCrew</span>
-          </NavLink>
+      <main className="mx-auto max-w-7xl px-6 py-10 lg:px-8 lg:py-14">
+        <WelcomeHeader />
 
-          {/* Navigation */}
-          <nav className="hidden items-center gap-1 md:flex">
-            {navItems.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `rounded-lg px-4 py-2 text-sm font-medium transition-colors
-                  ${
-                    isActive
-                      ? "bg-prussian-blue-500 text-alabaster-grey-100"
-                      : "text-lavender-grey-500 hover:bg-prussian-blue-500/70 hover:text-alabaster-grey-100"
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
+        {/* Progress + Streak */}
+        <section className="mb-10 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+          <ProgressCard />
+          <StreakCard />
+        </section>
 
-          {/* Profile */}
-          <button className="flex items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-prussian-blue-500">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-grey-500 font-semibold text-ink-black-500">
-              A
-            </div>
+        <ChoreList />
 
-            <div className="hidden text-left sm:block">
-              <p className="text-sm font-medium text-alabaster-grey-100">
-                Alex
-              </p>
-              <p className="text-xs text-lavender-grey-500">
-                Smith Family
-              </p>
-            </div>
-          </button>
-        </div>
-      </header>
+        {/* Activity + Weekly */}
+        <section className="grid gap-5 lg:grid-cols-2">
+          <ActivityFeed />
+          <WeeklyOverview />
+        </section>
+
+        <UpcomingChores />
+      </main>
     </div>
   )
 }
