@@ -1,8 +1,13 @@
 import ChoreFilters from "./ChoreFilters";
 import ChoreItem from "./ChoreItem";
-import { mockChores } from "../../data/mockChores";
+import type { Chore } from "../../types/chore";
 
-export default function ChoreList() {
+type ChoreListProps = {
+  chores: Chore[]; 
+  onToggle: (id: string) => void;
+};
+
+export default function ChoreList({chores, onToggle}: ChoreListProps) {
   return (
     <section className="mb-10">
       <div className="mb-5 flex items-end justify-between">
@@ -24,13 +29,10 @@ export default function ChoreList() {
       <ChoreFilters />
 
       <div className="overflow-hidden rounded-2xl border border-dusk-blue-500/30 bg-prussian-blue-500">
-        {mockChores.map((chore) => (
+        {chores.map((chore) => (
           <ChoreItem
-            key={chore.id}
-            title={chore.title}
-            person={chore.person}
-            time={chore.time}
-            completed={chore.completed}
+            chore={chore}
+            onToggle={onToggle}
           />
         ))}
       </div>

@@ -1,4 +1,11 @@
-export default function ProgressCard() {
+type ProgressCardProps = {
+  completed: number,
+  total: number
+}
+
+export default function ProgressCard({ completed, total }: ProgressCardProps) {
+  const percentage = (completed / total ) * 100;
+
   return (
     <div className="rounded-2xl border border-dusk-blue-500/30 bg-prussian-blue-500 p-6 shadow-xl shadow-black/10 sm:p-8">
       <div className="flex items-start justify-between">
@@ -9,11 +16,11 @@ export default function ProgressCard() {
 
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-4xl font-semibold tracking-tight text-alabaster-grey-100">
-              7
+              {completed}
             </span>
 
             <span className="text-lg text-lavender-grey-500">
-              / 10 chores
+              / {total} chores
             </span>
           </div>
         </div>
@@ -22,7 +29,7 @@ export default function ProgressCard() {
           <div className="absolute inset-[-7px] rotate-[45deg] rounded-full border-[7px] border-lavender-grey-500 border-r-transparent border-b-transparent" />
 
           <span className="text-sm font-semibold text-alabaster-grey-100">
-            70%
+            {percentage}%
           </span>
         </div>
       </div>
@@ -34,12 +41,14 @@ export default function ProgressCard() {
           </span>
 
           <span className="font-medium text-alabaster-grey-100">
-            70%
+            {percentage}%
           </span>
         </div>
 
         <div className="h-2 overflow-hidden rounded-full bg-dusk-blue-500">
-          <div className="h-full w-[70%] rounded-full bg-lavender-grey-500" />
+          <div 
+            className="h-full rounded-full bg-lavender-grey-500 transition-all duration-500"
+            style={{ width: `${percentage}%` }} />
         </div>
       </div>
 
@@ -48,7 +57,7 @@ export default function ProgressCard() {
           ✓
         </span>
 
-        <span>7 chores completed today. Nice work!</span>
+        <span>{completed} {completed == 1 ? "chore" : "chores"} completed today. Nice work!</span>
       </div>
     </div>
   );

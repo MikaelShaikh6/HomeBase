@@ -1,9 +1,7 @@
 export type Chore = {
   id: string;
   title: string;
-  assignedToId: string;
-  dueDate: string;
+  person: string;
+  time: string;
   completed: boolean;
-  completedAt?: string;
-  recurring: boolean;
 };

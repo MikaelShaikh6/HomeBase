@@ -1,16 +1,20 @@
+import type { Chore } from "../../types/chore";
+
 type ChoreItemProps = {
-  title: string;
-  person: string;
-  time: string;
-  completed?: boolean;
+  chore: Chore;
+  onToggle: (id: string) => void;
 };
 
 export default function ChoreItem({
-  title,
-  person,
-  time,
-  completed = false,
+  chore,
+  onToggle
 }: ChoreItemProps) {
+
+  const completed = chore.completed;
+  const title = chore.title;
+  const person = chore.person;
+  const time = chore.time;
+  const id = chore.id;
   return (
     <div
       className={`group flex items-center gap-4 border-b border-dusk-blue-500/20 px-5 py-4 transition-colors last:border-b-0 hover:bg-dusk-blue-500/20 ${
@@ -18,6 +22,8 @@ export default function ChoreItem({
       }`}
     >
       <button
+        type='button'
+        onClick={() => onToggle(id)}
         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
           completed
             ? "border-lavender-grey-500 bg-lavender-grey-500 text-ink-black-500"

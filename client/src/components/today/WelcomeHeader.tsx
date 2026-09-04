@@ -1,6 +1,10 @@
 import { Plus } from "lucide-react";
 
-export default function WelcomeHeader() {
+type WelcomeHeaderProps = {
+  onAddChore: () => void;
+};
+
+export default function WelcomeHeader({ onAddChore }: WelcomeHeaderProps) {
   return (
     <section className="mb-10">
       <p className="mb-2 text-sm font-medium text-lavender-grey-500">
@@ -18,7 +22,9 @@ export default function WelcomeHeader() {
           </p>
         </div>
 
-        <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-dusk-blue-500 px-5 py-3 text-sm font-semibold text-alabaster-grey-100 transition-all hover:bg-lavender-grey-500 hover:text-ink-black-500 active:scale-[0.98]">
+        <button 
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-dusk-blue-500 px-5 py-3 text-sm font-semibold text-alabaster-grey-100 transition-all hover:bg-lavender-grey-500 hover:text-ink-black-500 active:scale-[0.98]"
+          onClick={onAddChore}>
           <Plus size={18} />
           Add chore
         </button>
