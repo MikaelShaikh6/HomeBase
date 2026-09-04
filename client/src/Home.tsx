@@ -5,7 +5,7 @@ import ChoreList from "./components/today/ChoreList";
 import ActivityFeed from "./components/today/ActivityFeed";
 import WeeklyOverview from "./components/today/WeeklyOverview";
 import UpcomingChores from "./components/today/UpcomingChores";
-import Header from "./components/today/Header";
+import Header from "./components/Header";
 
 const Home = () => {
   const navItems = [

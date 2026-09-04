@@ -1,36 +1,6 @@
 import ChoreFilters from "./ChoreFilters";
 import ChoreItem from "./ChoreItem";
-
-const chores = [
-  {
-    id: 1,
-    title: "Feed the dog",
-    person: "Dad",
-    time: "5:30 PM",
-    completed: true,
-  },
-  {
-    id: 2,
-    title: "Take out the trash",
-    person: "Alex",
-    time: "8:00 PM",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Load the dishwasher",
-    person: "Emma",
-    time: "6:00 PM",
-    completed: false,
-  },
-  {
-    id: 4,
-    title: "Clean the kitchen",
-    person: "Mom",
-    time: "7:00 PM",
-    completed: false,
-  },
-];
+import { mockChores } from "../../data/mockChores";
 
 export default function ChoreList() {
   return (
@@ -54,7 +24,7 @@ export default function ChoreList() {
       <ChoreFilters />
 
       <div className="overflow-hidden rounded-2xl border border-dusk-blue-500/30 bg-prussian-blue-500">
-        {chores.map((chore) => (
+        {mockChores.map((chore) => (
           <ChoreItem
             key={chore.id}
             title={chore.title}
