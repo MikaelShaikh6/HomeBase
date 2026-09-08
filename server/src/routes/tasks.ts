@@ -1,16 +1,25 @@
 import { Router } from "express";
 import pool from "../db/index.ts";
+import auth, { type AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", async (_req, res) => {
+router.get("/", auth, async (req: AuthRequest, res) => {
   try {
+    const householdId = req.user?.householdId;
+
+    if (!householdId) {
+      return res.status(400).json({
+        error: "User does not belong to a household",
+      });
+    }
+
     const result = await pool.query(
       `SELECT *
        FROM tasks
        WHERE household_id = $1
        ORDER BY created_at DESC`,
-      [1]
+      [householdId]
     );
 
     res.json(result.rows);
@@ -20,15 +29,23 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req: AuthRequest, res) => {
   try {
     const { title, time, assignedTo } = req.body;
+
+    const householdId = req.user?.householdId;
+
+    if (!householdId) {
+      return res.status(400).json({
+        error: "User does not belong to a household",
+      });
+    }
 
     const result = await pool.query(
       `INSERT INTO tasks (household_id, assigned_to, title, time)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [1, assignedTo, title, time]
+      [householdId, assignedTo, title, time]
     );
 
     res.status(201).json(result.rows[0]);
@@ -38,7 +55,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
     const { completed } = req.body;
@@ -62,7 +79,7 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try {
     const { id } = req.params;
         
