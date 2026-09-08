@@ -41,6 +41,20 @@ router.post("/", auth, async (req: AuthRequest, res) => {
       });
     }
 
+    const assignedUserResult = await pool.query(
+      `SELECT id
+      FROM users
+      WHERE id = $1
+      AND household_id = $2`,
+      [assignedTo, householdId]
+    );
+
+    if (assignedUserResult.rows.length === 0) {
+      return res.status(400).json({
+        error: "Assigned user does not belong to your household",
+      });
+    }
+
     const result = await pool.query(
       `INSERT INTO tasks (household_id, assigned_to, title, time)
        VALUES ($1, $2, $3, $4)
