@@ -1,4 +1,4 @@
-export const mockChores = [
+export const mockTasks = [
   {
     id: '1',
     title: "Feed the dog",

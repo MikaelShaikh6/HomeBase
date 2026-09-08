@@ -1,20 +1,20 @@
-import type { Chore } from "../../types/chore";
+import type { Task } from "../../types/task";
 
-type ChoreItemProps = {
-  chore: Chore;
+type TaskItemProps = {
+  task: Task;
   onToggle: (id: string) => void;
 };
 
-export default function ChoreItem({
-  chore,
+export default function TaskItem({
+  task,
   onToggle
-}: ChoreItemProps) {
+}: TaskItemProps) {
 
-  const completed = chore.completed;
-  const title = chore.title;
-  const person = chore.person;
-  const time = chore.time;
-  const id = chore.id;
+  const completed = task.completed;
+  const title = task.title;
+  const person = task.person;
+  const time = task.time;
+  const id = task.id;
   return (
     <div
       className={`group flex items-center gap-4 border-b border-dusk-blue-500/20 px-5 py-4 transition-colors last:border-b-0 hover:bg-dusk-blue-500/20 ${

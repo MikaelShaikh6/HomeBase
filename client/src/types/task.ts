@@ -1,4 +1,4 @@
-export type Chore = {
+export type Task = {
   id: string;
   title: string;
   person: string;

@@ -1,20 +1,21 @@
 import { useState } from "react";
-import type { Chore } from "../../types/chore";
 
-type AddChoreModalProps = {
-  onAdd: (chore: Chore) => void;
+import type { Task } from "../../types/task";
+
+type AddTaskModalProps = {
+  onAdd: (task: Task) => void;
   onClose: () => void;
 };
 
-export default function AddChoreModal({
+export default function AddTaskModal({
   onAdd,
   onClose,
-}: AddChoreModalProps) {
+}: AddTaskModalProps) {
   const [title, setTitle] = useState("");
   const [person, setPerson] = useState("Me");
   const [time, setTime] = useState("");
 
-  const handleSubmit = (event: React.SubmitEvent) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!title.trim() || !time) {
@@ -27,7 +28,7 @@ export default function AddChoreModal({
     const period = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12;
 
-    const newChore: Chore = {
+    const newTask: Task = {
       id: crypto.randomUUID(),
       title: title.trim(),
       person,
@@ -35,7 +36,7 @@ export default function AddChoreModal({
       completed: false,
     };
 
-    onAdd(newChore);
+    onAdd(newTask);
     onClose();
   };
 
@@ -44,26 +45,26 @@ export default function AddChoreModal({
       <div className="w-full max-w-md rounded-2xl border border-border-subtle/30 bg-prussian-blue-500 p-6 shadow-2xl">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-alabaster-grey-100">
-            Add a chore
+            Add a task
           </h2>
 
           <p className="mt-1 text-sm text-lavender-grey-500">
-            Create a new chore for today.
+            Create a new task for today.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Chore name */}
+          {/* Task */}
           <div>
             <label
-              htmlFor="chore-title"
+              htmlFor="task-title"
               className="mb-2 block text-sm font-medium"
             >
-              Chore
+              Task
             </label>
 
             <input
-              id="chore-title"
+              id="task-title"
               type="text"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
@@ -94,17 +95,17 @@ export default function AddChoreModal({
             </select>
           </div>
 
-          {/* Due date */}
+          {/* Time */}
           <div>
             <label
-              htmlFor="time"
+              htmlFor="task-time"
               className="mb-2 block text-sm font-medium"
             >
               Time
             </label>
 
             <input
-              id="time"
+              id="task-time"
               type="time"
               value={time}
               onChange={(event) => setTime(event.target.value)}
@@ -126,7 +127,7 @@ export default function AddChoreModal({
               type="submit"
               className="rounded-lg bg-dusk-blue-500 px-4 py-2.5 text-sm font-medium text-alabaster-grey-100 transition-colors hover:bg-lavender-grey-500"
             >
-              Add chore
+              Add task
             </button>
           </div>
         </form>
