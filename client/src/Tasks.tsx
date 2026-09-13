@@ -1,31 +1,77 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "./components/Header";
 import TaskList from "./components/tasks/TaskList";
 import AddTaskModal from "./components/tasks/AddTaskModal";
-
 import { navItems } from "./navigation/navItems";
-import type { Task } from "./types/task";
+
+import {
+  getTasks,
+  updateTask,
+  deleteTask,
+  type Task,
+} from "./api/tasks";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const toggleTask = (id: string) => {
-    setTasks((currChores) => 
-      currChores.map((chore) => 
-        chore.id == id
-          ? {
-            ...chore,
-            completed: !chore.completed
-          }
-          : chore
-      )
-    );
-  }
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getTasks()
+      .then((data) => {
+        setTasks(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError("Failed to load tasks.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const toggleTask = async (id: number) => {
+    const task = tasks.find((task) => task.id === id);
+
+    if (!task) {
+      return;
+    }
+
+    try {
+      const updatedTask = await updateTask(
+        id,
+        !task.completed
+      );
+
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === id ? updatedTask : task
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      setError("Failed to update task.");
+    }
+  };
 
   const handleAddTask = (task: Task) => {
-    setTasks((currentTasks) => [...currentTasks, task]);
+    setTasks((currentTasks) => [task, ...currentTasks]);
+  };
+
+  const handleDeleteTask = async (id: number) => {
+    try {
+      await deleteTask(id);
+
+      setTasks((currentTasks) =>
+        currentTasks.filter((task) => task.id !== id)
+      );
+    } catch (error) {
+      console.error(error);
+      setError("Failed to delete task.");
+    }
   };
 
   const handleCloseModal = () => {
@@ -57,8 +103,24 @@ const Tasks = () => {
           </button>
         </div>
 
+        {error && (
+          <p className="mb-4 text-sm text-red-400">
+            {error}
+          </p>
+        )}
+
         <section className="rounded-xl border border-white/10 bg-white/5 p-6">
-          <TaskList tasks={tasks} onToggle={toggleTask}/>
+          {loading ? (
+            <p className="text-lavender-grey-500">
+              Loading tasks...
+            </p>
+          ) : (
+            <TaskList
+              tasks={tasks}
+              onToggle={toggleTask}
+              onDelete={handleDeleteTask}
+            />
+          )}
         </section>
 
         {isModalOpen && (

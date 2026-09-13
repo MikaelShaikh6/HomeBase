@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import type { Task } from "../../types/task";
+import { createTask } from "../../api/tasks";
+import {
+  getMyHousehold,
+  type HouseholdMember,
+} from "../../api/households";
+
+import type { Task } from "../../api/tasks";
 
 type AddTaskModalProps = {
   onAdd: (task: Task) => void;
@@ -12,33 +18,55 @@ export default function AddTaskModal({
   onClose,
 }: AddTaskModalProps) {
   const [title, setTitle] = useState("");
-  const [person, setPerson] = useState("Me");
+  const [assignedTo, setAssignedTo] = useState<number | "">("");
   const [time, setTime] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [members, setMembers] = useState<HouseholdMember[]>([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getMyHousehold()
+      .then((data) => {
+        setMembers(data.members);
+
+        if (data.members.length > 0) {
+          setAssignedTo(data.members[0].id);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setError("Failed to load household members");
+      });
+  }, []);
+
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
-    if (!title.trim() || !time) {
+    if (!title.trim() || !time || assignedTo === "") {
       return;
     }
 
-    // eslint-disable-next-line prefer-const
-    let [hours, minutes] = time.split(":").map(Number);
+    setError("");
 
-    const period = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
+    try {
+      const task = await createTask(
+        title.trim(),
+        time,
+        assignedTo
+      );
 
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      person,
-      time: `${hours}:${minutes.toString().padStart(2, "0")} ${period}`,
-      completed: false,
-    };
-
-    onAdd(newTask);
-    onClose();
-  };
+      onAdd(task);
+      onClose();
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to create task"
+      );
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
@@ -54,7 +82,6 @@ export default function AddTaskModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Task */}
           <div>
             <label
               htmlFor="task-title"
@@ -74,7 +101,6 @@ export default function AddTaskModal({
             />
           </div>
 
-          {/* Assigned to */}
           <div>
             <label
               htmlFor="assigned-to"
@@ -85,17 +111,20 @@ export default function AddTaskModal({
 
             <select
               id="assigned-to"
-              value={person}
-              onChange={(event) => setPerson(event.target.value)}
+              value={assignedTo}
+              onChange={(event) =>
+                setAssignedTo(Number(event.target.value))
+              }
               className="w-full rounded-lg border border-border-subtle/40 bg-ink-black-500 px-4 py-3 text-sm text-alabaster-grey-100 outline-none focus:border-lavender-grey-500"
             >
-              <option value="Me">Me</option>
-              <option value="Alex">Alex</option>
-              <option value="Sam">Sam</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.email}
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* Time */}
           <div>
             <label
               htmlFor="task-time"
@@ -109,11 +138,16 @@ export default function AddTaskModal({
               type="time"
               value={time}
               onChange={(event) => setTime(event.target.value)}
-              className="w-full rounded-lg border border-border-subtle/40 bg-ink-black-500 px-4 py-3 text-sm text-alabaster-grey-100 outline-none focus:border-lavender-grey-500"
+              className="w-full rounded-lg border border-border-subtle/40 bg-ink-black-500 px-4 py-3 text-sm text-alabaster-grey-100 outline-none placeholder:text-lavender-grey-500 focus:border-lavender-grey-500"
             />
           </div>
 
-          {/* Buttons */}
+          {error && (
+            <p className="text-sm text-red-400">
+              {error}
+            </p>
+          )}
+
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
@@ -125,7 +159,8 @@ export default function AddTaskModal({
 
             <button
               type="submit"
-              className="rounded-lg bg-dusk-blue-500 px-4 py-2.5 text-sm font-medium text-alabaster-grey-100 transition-colors hover:bg-lavender-grey-500"
+              disabled={members.length === 0}
+              className="rounded-lg bg-dusk-blue-500 px-4 py-2.5 text-sm font-medium text-alabaster-grey-100 transition-colors hover:bg-lavender-grey-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add task
             </button>

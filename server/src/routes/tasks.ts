@@ -15,10 +15,13 @@ router.get("/", auth, async (req: AuthRequest, res) => {
     }
 
     const result = await pool.query(
-      `SELECT *
-       FROM tasks
-       WHERE household_id = $1
-       ORDER BY created_at DESC`,
+      `SELECT
+        tasks.*,
+        users.email AS assigned_to_email
+      FROM tasks
+      JOIN users ON tasks.assigned_to = users.id
+      WHERE tasks.household_id = $1
+      ORDER BY tasks.created_at DESC`,
       [householdId]
     );
 
@@ -57,10 +60,24 @@ router.post("/", auth, async (req: AuthRequest, res) => {
 
     const result = await pool.query(
       `INSERT INTO tasks (household_id, assigned_to, title, time)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
+      VALUES ($1, $2, $3, $4)
+      RETURNING *`,
       [householdId, assignedTo, title, time]
     );
+
+    const task = result.rows[0];
+
+    const userResult = await pool.query(
+      `SELECT email
+      FROM users
+      WHERE id = $1`,
+      [task.assigned_to]
+    );
+
+res.status(201).json({
+  ...task,
+  assigned_to_email: userResult.rows[0].email,
+});
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -69,24 +86,40 @@ router.post("/", auth, async (req: AuthRequest, res) => {
   }
 });
 
-router.patch("/:id", auth, async (req, res) => {
+router.patch("/:id", auth, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const { completed } = req.body;
+    const householdId = req.user?.householdId;
 
     const result = await pool.query(
       `UPDATE tasks
-       SET completed = $1
-       WHERE id = $2
-       RETURNING *`,
-      [completed, id]
+      SET completed = $1
+      WHERE id = $2
+      AND household_id = $3
+      RETURNING *`,
+      [completed, id, householdId]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Task not found" });
+      return res.status(404).json({
+        error: "Task not found",
+      });
     }
 
-    res.json(result.rows[0]);
+    const task = result.rows[0];
+
+    const userResult = await pool.query(
+      `SELECT email
+      FROM users
+      WHERE id = $1`,
+      [task.assigned_to]
+    );
+
+    res.json({
+      ...task,
+      assigned_to_email: userResult.rows[0].email,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to update task" });

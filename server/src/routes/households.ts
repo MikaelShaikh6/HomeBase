@@ -1,6 +1,7 @@
 import { Router } from "express";
 import pool from "../db";
 import auth, { type AuthRequest } from "../middleware/auth";
+import jwt from "jsonwebtoken";
 
 const router = Router();
 
@@ -56,7 +57,18 @@ router.post("/", auth, async (req: AuthRequest, res) => {
       [household.id, userId]
     );
 
-    res.status(201).json(household);
+    const token = jwt.sign(
+      {
+        userId,
+        householdId: household.id,
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.status(201).json({household, token});
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -118,7 +130,18 @@ router.post("/join", auth, async (req: AuthRequest, res) => {
       [household.id, userId]
     );
 
-    res.json(household);
+    const token = jwt.sign(
+      {
+        userId,
+        householdId: household.id,
+      },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    res.json({household, token});
   } catch (error) {
     console.error(error);
     res.status(500).json({

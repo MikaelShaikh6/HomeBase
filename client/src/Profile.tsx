@@ -1,17 +1,40 @@
-import Header from "./components/Header";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
+import Header from "./components/Header";
 import { navItems } from "./navigation/navItems";
 
-const Profile = () => {
-  const user = {
-    name: "Alex",
-    email: "alex@example.com",
-  };
+import { getCurrentUser, logout } from "./api/auth";
+import { getMyHousehold } from "./api/households";
 
-  const household = {
-    name: "Apartment 302",
-    role: "Member",
-  };
+const Profile = () => {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [householdName, setHouseholdName] = useState("");
+
+  useEffect(() => {
+    getCurrentUser()
+      .then((data) => {
+        setEmail(data.email);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    getMyHousehold()
+      .then((data) => {
+        setHouseholdName(data.household.name);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
 
   return (
     <div className="min-h-screen bg-ink-black-500 text-alabaster-grey-100">
@@ -29,65 +52,38 @@ const Profile = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Account */}
           <section className="rounded-xl border border-white/10 bg-white/5 p-6">
             <h2 className="mb-6 text-xl font-semibold">
               Account
             </h2>
 
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-lavender-grey-500">
-                  Name
-                </p>
+            <div>
+              <p className="text-sm text-lavender-grey-500">
+                Email
+              </p>
 
-                <p className="mt-1">
-                  {user.name}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-lavender-grey-500">
-                  Email
-                </p>
-
-                <p className="mt-1">
-                  {user.email}
-                </p>
-              </div>
+              <p className="mt-1">
+                {email}
+              </p>
             </div>
           </section>
 
-          {/* Household */}
           <section className="rounded-xl border border-white/10 bg-white/5 p-6">
             <h2 className="mb-6 text-xl font-semibold">
               Household
             </h2>
 
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-lavender-grey-500">
-                  Household
-                </p>
+            <div>
+              <p className="text-sm text-lavender-grey-500">
+                Household
+              </p>
 
-                <p className="mt-1">
-                  {household.name}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-lavender-grey-500">
-                  Role
-                </p>
-
-                <p className="mt-1">
-                  {household.role}
-                </p>
-              </div>
+              <p className="mt-1">
+                {householdName}
+              </p>
             </div>
           </section>
 
-          {/* Logout */}
           <section className="rounded-xl border border-white/10 bg-white/5 p-6">
             <h2 className="mb-2 text-xl font-semibold">
               Account Actions
@@ -99,6 +95,7 @@ const Profile = () => {
 
             <button
               type="button"
+              onClick={handleLogout}
               className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium transition hover:bg-white/10"
             >
               Log out
